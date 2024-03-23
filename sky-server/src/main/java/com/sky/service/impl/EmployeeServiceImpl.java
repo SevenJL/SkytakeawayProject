@@ -1,7 +1,10 @@
 package com.sky.service.impl;
 
 import com.sky.constant.MessageConstant;
+import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
+import com.sky.context.BaseContext;
+import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
@@ -9,9 +12,12 @@ import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
 import com.sky.service.EmployeeService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+
+import java.time.LocalDateTime;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -26,6 +32,7 @@ public class EmployeeServiceImpl implements EmployeeService {
      * @return
      */
     public Employee login(EmployeeLoginDTO employeeLoginDTO) {
+
         String username = employeeLoginDTO.getUsername();
         String password = employeeLoginDTO.getPassword();
 
@@ -39,10 +46,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         //密码比对
-        // TODO 后期需要进行md5加密，然后再进行比对
+        // 对前端传过来的密码 进行MD5加密
+        // DigestUtils是用来进行MD5加密的一个方法
+        password = DigestUtils.md5DigestAsHex(password.getBytes());
+
         if (!password.equals(employee.getPassword())) {
             //密码错误
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
+            // 自定义了一个消息常量类 当抛出异常时候 直接调用这些 消息常量类 来输出错误信息
         }
 
         if (employee.getStatus() == StatusConstant.DISABLE) {
@@ -54,4 +65,46 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employee;
     }
 
+
+    /**
+     * 新增员工
+     * @param employeeDTO
+     */
+    @Override
+    public void save(EmployeeDTO employeeDTO) {
+
+        System.out.println("当前线程的ID:"+Thread.currentThread().getId());
+
+
+        Employee employee = new Employee();
+
+        // employee.setName(employeeDTO.getName()); 过于繁琐
+
+        // 使用对象属性拷贝
+        BeanUtils.copyProperties(employeeDTO, employee); // 前提是属性名一致 可以对应拷贝
+
+        // 前面属性拷贝过来了 需要我们去添加
+        // 属性状态 默认状态为正常 1为正常 0为锁定
+        // employee.setStatus(1); 这样就为硬编码了 不便于日后维护
+        employee.setStatus(StatusConstant.ENABLE); // 直接使用我们自定义规定的 常量类
+
+        // 设置密码
+        // password常量类
+        employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
+
+        // 设置当前记录的创建时间 和修改时间
+        employee.setCreateTime(LocalDateTime.now());
+        employee.setUpdateTime(LocalDateTime.now());
+
+        // 设置当前记录的创建人ID和修改人ID
+
+        Long currentId = BaseContext.getCurrentId();
+        employee.setCreateUser(currentId);
+        employee.setUpdateUser(currentId);
+
+
+        employeeMapper.insert(employee);
+
+
+    }
 }

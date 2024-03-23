@@ -39,10 +39,13 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
     /**
      * 通过knife4j生成接口文档
+     *
      * @return
      */
     @Bean
-    public Docket docket() {
+    public Docket docket() {// 会使用即可
+        // http://localhost:8080/doc.html#/home 这个页面 是由下面代码生成的一个接口文档
+        log.info("准备生成接口文档");
         ApiInfo apiInfo = new ApiInfoBuilder()
                 .title("苍穹外卖项目接口文档")
                 .version("2.0")
@@ -51,7 +54,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         Docket docket = new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.sky.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.sky.controller"))// 指定扫描的包
                 .paths(PathSelectors.any())
                 .build();
         return docket;
@@ -59,10 +62,14 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
     /**
      * 设置静态资源映射
+     *
      * @param registry
      */
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // addResourceHandlers这个方法名不能随便写 它是WebMvcConfigurationSupport继承了这个父类的方法
+        log.info("开始设置静态资源映射");
         registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+        // 如果没有设置静态资源映射 请求的是/doc.html这个动态的页面 并不认为是静态 想去请求某个controller
     }
 }

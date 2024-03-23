@@ -1,6 +1,7 @@
 package com.sky.controller.admin;
 
 import com.sky.constant.JwtClaimsConstant;
+import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.entity.Employee;
 import com.sky.properties.JwtProperties;
@@ -8,6 +9,8 @@ import com.sky.result.Result;
 import com.sky.service.EmployeeService;
 import com.sky.utils.JwtUtil;
 import com.sky.vo.EmployeeLoginVO;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +26,9 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/admin/employee")
+// /admin为商家 /user为用户 区别不同的端
 @Slf4j
+@Api(tags = "员工相关接口")
 public class EmployeeController {
 
     @Autowired
@@ -38,6 +43,7 @@ public class EmployeeController {
      * @return
      */
     @PostMapping("/login")
+    @ApiOperation(value = "员工登录")
     public Result<EmployeeLoginVO> login(@RequestBody EmployeeLoginDTO employeeLoginDTO) {
         log.info("员工登录：{}", employeeLoginDTO);
 
@@ -67,8 +73,30 @@ public class EmployeeController {
      * @return
      */
     @PostMapping("/logout")
+    @ApiOperation("员工退出")
     public Result<String> logout() {
         return Result.success();
+    }
+
+
+    /**
+     * 新增员工
+     * @param employeeDTO 需要新增员工的信息的json格式
+     */
+    @PostMapping
+    // 主路径为@RequestMapping("/admin/employee") 不需要再进行添加路径了
+    @ApiOperation("新增员工")
+    public Result save(@RequestBody EmployeeDTO employeeDTO) {
+        System.out.println("当前线程的ID:"+Thread.currentThread().getId());
+
+
+        // 如果传过来的是json格式的 需要 @RequestBody进行注释
+        log.info("新增员工:{}", employeeDTO);
+        // {}为占位符 动态将后面的属性拼接进来
+        employeeService.save(employeeDTO);
+
+
+        return Result.success();// 表示返回成功
     }
 
 }
