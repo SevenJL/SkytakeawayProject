@@ -34,10 +34,7 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
      */
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // 获取当前线程的Id
-
-        System.out.println("当前线程的ID:"+Thread.currentThread().getId());
-
-
+        // System.out.println("当前线程的ID:"+Thread.currentThread().getId());
         //判断当前拦截到的是Controller的方法还是其他资源
         if (!(handler instanceof HandlerMethod)) {
             //当前拦截到的不是动态方法，直接放行
@@ -53,7 +50,7 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
             Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), token);
             Long empId = Long.valueOf(claims.get(JwtClaimsConstant.EMP_ID).toString());
             BaseContext.setCurrentId(empId);// 将当前线程的ID保存到 这些自定义的线程ID中
-            log.info("当前员工id：", empId);
+            log.info("当前员工id:{}", empId);
             //3、通过，放行
             return true;
         } catch (Exception ex) {

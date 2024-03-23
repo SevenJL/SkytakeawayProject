@@ -24,6 +24,7 @@ import org.springframework.util.DigestUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@SuppressWarnings("all")
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
@@ -149,6 +150,47 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 俩种设置属性值的方法
         // @Builder 使用这个注解 可以实现下面的方法
         Employee employee = Employee.builder().status(status).id(id).build();
+        employeeMapper.update(employee);
+    }
+
+    /**
+     * 根据ID
+     * 查询员工对象
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public Employee getById(Long id) {
+
+        Employee employee = employeeMapper.getById(id);
+
+        employee.setPassword("******");
+        return employee;
+    }
+
+    /**
+     * 编辑员工信息
+     *
+     * @param employeeDTO
+     */
+    @Override
+    public void update(EmployeeDTO employeeDTO) {
+
+        // 创建Employee对象
+        Employee employee = new Employee();
+
+        // 将employeeDTO的属性拷贝到Employee中
+        BeanUtils.copyProperties(employeeDTO, employee);
+
+        // 更新时间
+        employee.setUpdateTime(LocalDateTime.now());
+
+        // 修改人的ID
+        Long currentId = BaseContext.getCurrentId();
+        employee.setUpdateUser(currentId);
+
+        // 传入参数
         employeeMapper.update(employee);
     }
 }
