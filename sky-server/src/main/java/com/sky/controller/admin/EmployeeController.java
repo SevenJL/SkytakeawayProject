@@ -117,10 +117,10 @@ public class EmployeeController {
     // 路径参数 使用@PathVariable
     @PostMapping("/status/{status}") // 名字一直 自动装配
     @ApiOperation("启用/禁用 员工账号")
-    public Result startOrStop(@PathVariable Integer status,Long id){
-        log.info("启用/禁用 员工账号:status = {}, id = {}", status,id);
+    public Result startOrStop(@PathVariable Integer status, Long id) {
+        log.info("启用/禁用 员工账号:status = {}, id = {}", status, id);
 
-        employeeService.startOrStop(status,id);
+        employeeService.startOrStop(status, id);
         return Result.success();
     }
 

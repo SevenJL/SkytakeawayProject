@@ -131,7 +131,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         long total = page.getTotal(); // 获取Total
         List<Employee> records = page.getResult(); // 获取 Result
 
-        return new PageResult(total,records);// 传入PageResult
+        return new PageResult(total, records);// 传入PageResult
     }
 
     /**
